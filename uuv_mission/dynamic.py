@@ -1,8 +1,11 @@
+
+
 from __future__ import annotations
 from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
 from .terrain import generate_reference_and_limits
+import pandas as pd
 
 class Submarine:
     def __init__(self):
@@ -99,25 +102,16 @@ class ClosedLoop:
         
         positions = np.zeros((T, 2))
         actions = np.zeros(T)
-        self.plant.reset_state(self)
-
-        # reset controller internal state if available
-        if hasattr(self.controller, "reset_state"):
-            self.controller.reset_state()
+        self.plant.reset_state()
 
         for t in range(T):
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
-            # compute control action using controller.compute(reference, measurement)
-            if hasattr(self.controller, "compute"):
-                actions[t] = self.controller.compute(mission.reference[t], observation_t)
-            else:
-                # fallback to zero action if controller doesn't implement compute
-                actions[t] = 0.0
-
-            # apply action and disturbance to plant
+            # compute control action using controller.compute(reference, )
+            actions[t] = self.controller.compute(mission.reference[t], observation_t)
             self.plant.transition(actions[t], disturbances[t])
-
+            
+            
         return Trajectory(positions)
         
     def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
