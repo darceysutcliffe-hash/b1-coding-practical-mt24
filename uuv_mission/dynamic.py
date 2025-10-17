@@ -75,8 +75,15 @@ class Mission:
 
     @classmethod
     def from_csv(cls, file_name: str):
-        # You are required to implement this method
-        pass
+        try:
+            data = np.genfromtxt(file_name, delimiter=',', skip_header=1)
+            reference = data[:, 0]  # First column for reference
+            cave_height = data[:, 1]  # Second column for cave height
+            cave_depth = data[:, 2]  # Third column for cave depth
+            return cls(reference, cave_height, cave_depth)
+        except Exception as e:
+            raise ValueError(f"Error reading CSV file: {e}")
+    
 
 
 class ClosedLoop:
